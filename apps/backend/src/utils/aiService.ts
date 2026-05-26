@@ -1,11 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-// import { Anthropic } from 'anthropic';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { logger } from './logger';
 
-// Temporarily disabled - will be enabled after initial testing
-// const anthropic = new Anthropic({
-//   apiKey: process.env.ANTHROPIC_API_KEY,
-// });
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 export interface QuestionGenerationRequest {
   topic: string;
@@ -47,18 +45,8 @@ export async function generateQuestionsUsingAI(
     
     logger.info(`Generating ${request.numberOfQuestions} questions for topic: ${request.topic}`);
     
-    const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 4000,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    });
-
-    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
     const parsedQuestions = parseQuestionsFromResponse(responseText, request);
     
     return {
