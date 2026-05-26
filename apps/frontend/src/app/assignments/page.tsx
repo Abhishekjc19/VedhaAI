@@ -37,7 +37,7 @@ export default function AssignmentsPage() {
 
     try {
       await assignmentAPI.deleteAssignment(id);
-      setAssignments(assignments.filter((a) => a._id !== id));
+      setAssignments(assignments.filter((a) => a.id !== id));
     } catch (error) {
       console.error('Error deleting assignment:', error);
       alert('Failed to delete assignment');
@@ -125,7 +125,7 @@ export default function AssignmentsPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredAssignments.map((assignment) => (
               <AssignmentCard
-                key={assignment._id}
+                key={assignment.id}
                 assignment={assignment}
                 onDelete={handleDelete}
               />
