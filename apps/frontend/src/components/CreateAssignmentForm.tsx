@@ -196,54 +196,59 @@ export function CreateAssignmentForm() {
               <p className="mb-6 text-sm text-gray-600">Select question types and set count and marks</p>
               
               <div className="space-y-3">
-                {questionTypeOptions.map((option) => (
-                  <div key={option.value} className={`rounded-lg border border-gray-300 p-4 ${questionTypeCounts[option.value]?.count > 0 ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{option.label}</p>
-                      </div>
-                      
-                      {/* No. of Questions */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-600 min-w-fit">No. of Questions</span>
-                        <div className="flex items-center border border-gray-300 rounded-lg">
-                          <button
-                            type="button"
-                            onClick={() => updateQuestionTypeCount(option.value, -1)}
-                            className="px-2 py-1 text-gray-600 hover:bg-gray-100"
-                          >
-                            <ChevronDown className="h-4 w-4" />
-                          </button>
+                {questionTypeOptions.map((option) => {
+                  const typeData = questionTypeCounts[option.value];
+                  const isSelected = typeData && typeData.count > 0;
+                  
+                  return (
+                    <div key={option.value} className={`rounded-lg border border-gray-300 p-4 ${isSelected ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'}`}>
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{option.label}</p>
+                        </div>
+                        
+                        {/* No. of Questions */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-600 min-w-fit">No. of Questions</span>
+                          <div className="flex items-center border border-gray-300 rounded-lg">
+                            <button
+                              type="button"
+                              onClick={() => updateQuestionTypeCount(option.value, -1)}
+                              className="px-2 py-1 text-gray-600 hover:bg-gray-100"
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </button>
+                            <input
+                              type="text"
+                              value={typeData?.count || 0}
+                              className="w-12 text-center border-0 py-1 focus:outline-none"
+                              readOnly
+                            />
+                            <button
+                              type="button"
+                              onClick={() => updateQuestionTypeCount(option.value, 1)}
+                              className="px-2 py-1 text-gray-600 hover:bg-gray-100"
+                            >
+                              <ChevronUp className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Marks */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-600 min-w-fit">Marks</span>
                           <input
-                            type="text"
-                            value={questionTypeCounts[option.value]?.count || 0}
-                            className="w-12 text-center border-0 py-1 focus:outline-none"
-                            readOnly
+                            type="number"
+                            value={typeData?.marks || 0}
+                            onChange={(e) => updateQuestionTypeMarks(option.value, parseInt(e.target.value) || 0)}
+                            className="w-16 rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            min="0"
                           />
-                          <button
-                            type="button"
-                            onClick={() => updateQuestionTypeCount(option.value, 1)}
-                            className="px-2 py-1 text-gray-600 hover:bg-gray-100"
-                          >
-                            <ChevronUp className="h-4 w-4" />
-                          </button>
                         </div>
                       </div>
-
-                      {/* Marks */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-600 min-w-fit">Marks</span>
-                        <input
-                          type="number"
-                          value={questionTypeCounts[option.value]?.marks || 0}
-                          onChange={(e) => updateQuestionTypeMarks(option.value, parseInt(e.target.value) || 0)}
-                          className="w-16 rounded-lg border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          min="0"
-                        />
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
