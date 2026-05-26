@@ -1,0 +1,21 @@
+{
+  "name": "vedaai-assessment-creator",
+  "version": "1.0.0",
+  "description": "AI-powered Assessment Creator for Teachers",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
+    "build": "npm run build -w apps/backend && npm run build -w apps/frontend",
+    "start": "npm run start -w apps/backend",
+    "backend:dev": "npm run dev -w apps/backend",
+    "frontend:dev": "npm run dev -w apps/frontend",
+    "type-check": "npm run type-check -w apps/backend && npm run type-check -w apps/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
