@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, FileText, BookOpen, Clock, Settings } from 'lucide-react';
+import { Home, Users, FileText, BookOpen, Clock, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   schoolName?: string;
@@ -12,6 +13,7 @@ interface SidebarProps {
 
 export function Sidebar({ schoolName = 'Delhi Public School', schoolCity = 'Bokaro Sector City' }: SidebarProps) {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     { icon: Home, label: 'Home', href: '/assignments' },
@@ -70,8 +72,8 @@ export function Sidebar({ schoolName = 'Delhi Public School', schoolCity = 'Boka
         })}
       </nav>
 
-      {/* Settings */}
-      <div className="border-t border-gray-200 px-3 py-3">
+      {/* Settings & Logout */}
+      <div className="border-t border-gray-200 px-3 py-3 space-y-1">
         <Link
           href="/settings"
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
@@ -79,17 +81,26 @@ export function Sidebar({ schoolName = 'Delhi Public School', schoolCity = 'Boka
           <Settings className="h-5 w-5" />
           <span>Settings</span>
         </Link>
+        <button
+          onClick={() => signOut()}
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-red-600"
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Logout</span>
+        </button>
       </div>
 
-      {/* School Info */}
+      {/* User Info */}
       <div className="border-t border-gray-200 px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
-            <span className="text-sm font-semibold text-green-700">🏫</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
+            {user?.email?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-semibold text-gray-900">{schoolName}</p>
-            <p className="truncate text-xs text-gray-500">{schoolCity}</p>
+            <p className="truncate text-sm font-semibold text-gray-900">
+              {user?.user_metadata?.school_name || schoolName}
+            </p>
+            <p className="truncate text-xs text-gray-500">{user?.email}</p>
           </div>
         </div>
       </div>

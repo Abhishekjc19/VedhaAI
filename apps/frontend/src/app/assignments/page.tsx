@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Assignment } from '@/types/index';
 import { assignmentAPI } from '@/services/api';
 import { MainLayout } from '@/components/MainLayout';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { AssignmentCard } from '@/components/AssignmentCard';
 import { Search, Filter, Plus, FileX } from 'lucide-react';
@@ -52,16 +53,19 @@ export default function AssignmentsPage() {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <div className="flex min-h-screen items-center justify-center">
-          <LoadingSpinner message="Loading assignments..." />
-        </div>
-      </MainLayout>
+      <ProtectedRoute>
+        <MainLayout>
+          <div className="flex min-h-screen items-center justify-center">
+            <LoadingSpinner message="Loading assignments..." />
+          </div>
+        </MainLayout>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <MainLayout>
+    <ProtectedRoute>
+      <MainLayout>
       <div className="mx-auto h-full max-w-7xl">
         {/* Header */}
         <div className="mb-6">
@@ -155,6 +159,7 @@ export default function AssignmentsPage() {
         )}
       </div>
     </MainLayout>
+    </ProtectedRoute>
   );
 }
 

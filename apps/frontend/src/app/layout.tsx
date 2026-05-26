@@ -3,6 +3,7 @@
 import React from 'react';
 import { ReactNode } from 'react';
 import '@/styles/globals.css';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -12,9 +13,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="description" content="AI-powered Assessment Creator for Teachers" />
       </head>
       <body className="bg-white antialiased">
-        <div className="flex min-h-screen flex-col">
-          {children}
-        </div>
+        <AuthProvider>
+          <div className="flex min-h-screen flex-col">
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );
