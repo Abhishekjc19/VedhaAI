@@ -36,6 +36,7 @@ export function CreateAssignmentForm() {
   const { setCurrentAssignment, setIsGenerating } = useAssignmentStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [questionTypeCounts, setQuestionTypeCounts] = useState<Record<string, { count: number; marks: number }>>({});
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const {
     register,
@@ -63,6 +64,30 @@ export function CreateAssignmentForm() {
     const typeData = questionTypeCounts[key];
     return typeData && typeData.count > 0;
   });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        return;
+      }
+      
+      // Check file type
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Only PDF, JPEG, PNG, and Word documents are allowed');
+        return;
+      }
+      
+      setUploadedFile(file);
+    }
+  };
+
+  const handleBrowseClick = () => {
+    document.getElementById('file-upload')?.click();
+  };
 
   const onSubmit = async (data: AssignmentFormData) => {
     setIsSubmitting(true);
@@ -134,15 +159,41 @@ export function CreateAssignmentForm() {
               <label className="mb-2 block text-sm font-medium text-gray-700">
                 Upload Material (Optional)
               </label>
-              <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center hover:border-gray-400 transition-colors cursor-pointer">
+              <input
+                id="file-upload"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div 
+                onClick={handleBrowseClick}
+                className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
+              >
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
                   <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
-                <p className="mt-2 text-sm text-gray-600">Choose a file or drag & drop it here</p>
-                <p className="text-xs text-gray-500">JPEG, PNG, PDF, up to 10MB</p>
-                <button type="button" className="mt-3 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                {uploadedFile ? (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium text-gray-900">{uploadedFile.name}</p>
+                    <p className="text-xs text-gray-500">{(uploadedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="mt-2 text-sm text-gray-600">Choose a file or drag & drop it here</p>
+                    <p className="text-xs text-gray-500">JPEG, PNG, PDF, up to 10MB</p>
+                  </>
+                )}
+                <button 
+                  type="button" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBrowseClick();
+                  }}
+                  className="mt-3 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
                   Browse Files
                 </button>
               </div>
