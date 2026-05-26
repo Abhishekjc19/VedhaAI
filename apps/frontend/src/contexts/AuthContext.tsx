@@ -21,6 +21,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
+    // Skip if supabase is not available (during build)
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -37,6 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase not initialized') };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -50,6 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, schoolName?: string) => {
+    if (!supabase) {
+      return { error: new Error('Supabase not initialized') };
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -73,6 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    if (!supabase) return;
+    
     await supabase.auth.signOut();
     router.push('/login');
   };

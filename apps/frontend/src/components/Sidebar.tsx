@@ -100,7 +100,7 @@ export function Sidebar({ schoolName = 'Delhi Public School', schoolCity = 'Boka
             <p className="truncate text-sm font-semibold text-gray-900">
               {user?.user_metadata?.school_name || schoolName}
             </p>
-            <p className="truncate text-xs text-gray-500">{user?.email}</p>
+            <p className="truncate text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
           </div>
         </div>
       </div>
