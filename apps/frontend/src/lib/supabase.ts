@@ -1,18 +1,5 @@
-import { createBrowserClient } from '@supabase/ssr';
-import { createClient } from '@supabase/supabase-js';
-
-export const createSupabaseClient = () => {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-  );
-};
-
-// For server-side usage (if needed)
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-);
+// Supabase type definitions for the database schema
+// Note: Actual Supabase client is not used in this app as we use axios for API calls
 
 export type Database = {
   public: {
@@ -58,3 +45,4 @@ export type Database = {
     };
   };
 };
+
