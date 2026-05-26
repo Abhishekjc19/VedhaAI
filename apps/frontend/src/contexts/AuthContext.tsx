@@ -44,7 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!supabase) {
-      return { error: new Error('Supabase not initialized') };
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const errorMsg = `Supabase not initialized. URL: ${url ? 'Present' : 'MISSING'}, Key: ${key ? 'Present' : 'MISSING'}`;
+      console.error(errorMsg);
+      return { error: new Error(errorMsg) };
     }
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -61,7 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, schoolName?: string) => {
     if (!supabase) {
-      return { error: new Error('Supabase not initialized') };
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const errorMsg = `Supabase not initialized. URL: ${url ? 'Present' : 'MISSING'}, Key: ${key ? 'Present' : 'MISSING'}`;
+      console.error(errorMsg);
+      return { error: new Error(errorMsg) };
     }
 
     const { data, error } = await supabase.auth.signUp({
