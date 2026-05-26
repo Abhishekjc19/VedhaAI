@@ -39,7 +39,7 @@ export function AssignmentCard({ assignment, onDelete }: AssignmentCardProps) {
 
       <div className="mb-4 flex gap-4 text-sm text-gray-600">
         <div>
-          <span className="font-medium text-gray-700">{assignment.questionCount}</span>
+          <span className="font-medium text-gray-700">{assignment.numberOfQuestions}</span>
           <span className="text-gray-500"> Questions</span>
         </div>
         <div>
@@ -54,14 +54,14 @@ export function AssignmentCard({ assignment, onDelete }: AssignmentCardProps) {
 
       <div className="border-t border-gray-200 pt-3 flex gap-2">
         <Link
-          href={`/assignment/${assignment._id}/generate`}
+          href={`/assignment/${assignment.id}/generate`}
           className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100"
         >
           <Eye className="h-4 w-4" />
           View
         </Link>
         <button
-          onClick={() => onDelete?.(assignment._id)}
+          onClick={() => onDelete?.(assignment.id)}
           className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
         >
           <Trash2 className="h-4 w-4" />
