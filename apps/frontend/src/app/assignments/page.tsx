@@ -7,8 +7,7 @@ import { assignmentAPI } from '@/services/api';
 import { MainLayout } from '@/components/MainLayout';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { AssignmentCard } from '@/components/AssignmentCard';
-import { formatDate } from '@/utils/formatting';
-import { Search, Filter, Plus } from 'lucide-react';
+import { Search, Filter, Plus, FileX } from 'lucide-react';
 
 export default function AssignmentsPage() {
   const router = useRouter();
@@ -63,66 +62,88 @@ export default function AssignmentsPage() {
 
   return (
     <MainLayout>
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto h-full max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Assignments</h1>
-              <p className="mt-1 text-gray-600">Manage and view all your question papers</p>
+              <h1 className="text-2xl font-bold text-gray-900">Assignments</h1>
+              <p className="mt-1 text-sm text-gray-600">Manage your question papers and assignments</p>
             </div>
-            <button
-              onClick={() => router.push('/create')}
-              className="flex items-center gap-2 rounded-lg bg-gray-900 px-6 py-3 font-medium text-white transition-colors hover:bg-gray-800"
-            >
-              <Plus className="h-5 w-5" />
-              Create Assignment
-            </button>
           </div>
 
-          {/* Search and Filter */}
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search assignments..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
+          {/* Search and Filter - Only show if there are assignments */}
+          {assignments.length > 0 && (
+            <div className="flex gap-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search assignments..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="processing">Processing</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
             </div>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 bg-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
+          )}
         </div>
 
-        {/* Assignments Grid */}
-        {filteredAssignments.length === 0 ? (
-          <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-16 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p className="mt-4 text-lg font-medium text-gray-900">No assignments found</p>
-            <p className="mt-1 text-gray-600">Create your first assignment to get started!</p>
-            <button
-              onClick={() => router.push('/create')}
-              className="mt-6 rounded-lg bg-gray-900 px-6 py-2 font-medium text-white transition-colors hover:bg-gray-800"
-            >
-              Create Assignment
-            </button>
+        {/* Empty State or Assignments Grid */}
+        {filteredAssignments.length === 0 && assignments.length === 0 ? (
+          <div className="flex h-[calc(100vh-250px)] items-center justify-center">
+            <div className="text-center max-w-md">
+              {/* Empty State Illustration */}
+              <div className="mx-auto mb-6 flex h-48 w-48 items-center justify-center">
+                <div className="relative">
+                  {/* Decorative elements */}
+                  <div className="absolute -left-4 top-8 text-4xl">📝</div>
+                  <div className="absolute -right-2 top-4 text-2xl">✏️</div>
+                  <div className="absolute bottom-4 left-8 text-2xl">📊</div>
+                  
+                  {/* Main icon */}
+                  <div className="relative flex h-32 w-32 items-center justify-center rounded-full bg-gray-100">
+                    <FileX className="h-16 w-16 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+
+              <h2 className="mb-2 text-xl font-bold text-gray-900">No assignments yet</h2>
+              <p className="mb-6 text-sm text-gray-600 leading-relaxed">
+                Create your first assignment to start collecting and grading student submissions. 
+                You can set up rubrics, define marking criteria, and let AI assist with grading.
+              </p>
+              
+              <button
+                onClick={() => router.push('/create')}
+                className="inline-flex items-center gap-2 rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
+              >
+                <Plus className="h-4 w-4" />
+                Create Your First Assignment
+              </button>
+            </div>
+          </div>
+        ) : filteredAssignments.length === 0 ? (
+          <div className="flex h-[calc(100vh-300px)] items-center justify-center">
+            <div className="text-center">
+              <FileX className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <p className="text-lg font-medium text-gray-900">No assignments found</p>
+              <p className="mt-1 text-sm text-gray-600">Try adjusting your search or filter</p>
+            </div>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
             {filteredAssignments.map((assignment) => (
               <AssignmentCard
                 key={assignment.id}
@@ -136,3 +157,4 @@ export default function AssignmentsPage() {
     </MainLayout>
   );
 }
+

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Trash2, Eye } from 'lucide-react';
+import { MoreVertical, Calendar } from 'lucide-react';
 import { formatDate } from '@/utils/formatting';
 import { Assignment } from '@/types';
 
@@ -12,61 +12,76 @@ interface AssignmentCardProps {
 }
 
 export function AssignmentCard({ assignment, onDelete }: AssignmentCardProps) {
+  const [showMenu, setShowMenu] = React.useState(false);
+
   const statusColors = {
-    pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    processing: 'bg-blue-50 text-blue-700 border-blue-200',
-    completed: 'bg-green-50 text-green-700 border-green-200',
-    failed: 'bg-red-50 text-red-700 border-red-200',
+    draft: 'bg-gray-100 text-gray-700',
+    processing: 'bg-blue-100 text-blue-700',
+    completed: 'bg-green-100 text-green-700',
+    failed: 'bg-red-100 text-red-700',
   };
 
-  const statusBg = statusColors[assignment.status as keyof typeof statusColors] || statusColors.pending;
+  const statusBg = statusColors[assignment.status as keyof typeof statusColors] || statusColors.draft;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
-      <div className="mb-3 flex items-start justify-between">
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">{assignment.title}</h3>
-          <p className="text-sm text-gray-500">Topic: {assignment.topic}</p>
-        </div>
-        <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium border ${statusBg}`}>
-          {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
-        </span>
-      </div>
+    <Link href={`/assignment/${assignment.id}/generate`}>
+      <div className="group relative rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md cursor-pointer">
+        {/* Header */}
+        <div className="mb-4 flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate">{assignment.title}</h3>
+          </div>
+          
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setShowMenu(!showMenu);
+            }}
+            className="ml-2 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          >
+            <MoreVertical className="h-5 w-5" />
+          </button>
 
-      <div className="mb-3 text-sm text-gray-600">
-        <p className="line-clamp-2">{assignment.description}</p>
-      </div>
+          {/* Dropdown Menu */}
+          {showMenu && (
+            <div className="absolute right-5 top-12 z-10 w-32 rounded-lg border border-gray-200 bg-white shadow-lg">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  onDelete?.(assignment.id);
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
 
-      <div className="mb-4 flex gap-4 text-sm text-gray-600">
-        <div>
-          <span className="font-medium text-gray-700">{assignment.numberOfQuestions}</span>
-          <span className="text-gray-500"> Questions</span>
+        {/* Assignment Info */}
+        <div className="space-y-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Assigned on:</span>
+            <span>{formatDate(assignment.createdAt)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="font-medium">Due:</span>
+            <span>{formatDate(assignment.dueDate)}</span>
+          </div>
         </div>
-        <div>
-          <span className="font-medium text-gray-700">{assignment.totalMarks}</span>
-          <span className="text-gray-500"> Marks</span>
-        </div>
-        <div className="ml-auto">
-          <span className="text-gray-500">Due: </span>
-          <span className="font-medium text-gray-700">{formatDate(assignment.dueDate)}</span>
-        </div>
-      </div>
 
-      <div className="border-t border-gray-200 pt-3 flex gap-2">
-        <Link
-          href={`/assignment/${assignment.id}/generate`}
-          className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-100"
-        >
-          <Eye className="h-4 w-4" />
-          View
-        </Link>
-        <button
-          onClick={() => onDelete?.(assignment.id)}
-          className="flex items-center justify-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        {/* Footer */}
+        <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+          <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${statusBg}`}>
+            {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+          </span>
+          <span className="text-xs text-gray-500">
+            {assignment.numberOfQuestions} questions
+          </span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
