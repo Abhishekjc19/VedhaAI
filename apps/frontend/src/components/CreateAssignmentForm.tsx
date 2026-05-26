@@ -59,7 +59,10 @@ export function CreateAssignmentForm() {
 
   const numberOfQuestions = watch('numberOfQuestions');
   const totalMarks = watch('totalMarks');
-  const selectedTypes = Object.keys(questionTypeCounts).filter(key => questionTypeCounts[key]?.count > 0);
+  const selectedTypes = Object.keys(questionTypeCounts).filter(key => {
+    const typeData = questionTypeCounts[key];
+    return typeData && typeData.count > 0;
+  });
 
   const onSubmit = async (data: AssignmentFormData) => {
     setIsSubmitting(true);
@@ -72,7 +75,7 @@ export function CreateAssignmentForm() {
 
       setCurrentAssignment(assignment as Assignment);
       setIsGenerating(false);
-      router.push(`/assignment/${assignment._id}/generate`);
+      router.push(`/assignment/${assignment.id}/generate`);
     } catch (error) {
       console.error('Error creating assignment:', error);
       alert('Failed to create assignment');
@@ -88,7 +91,10 @@ export function CreateAssignmentForm() {
       ...prev,
       [type]: { count: newCount, marks: current.marks }
     }));
-    setValue('questionTypes', Object.keys(questionTypeCounts).filter(k => questionTypeCounts[k]?.count > 0));
+    setValue('questionTypes', Object.keys(questionTypeCounts).filter(k => {
+      const typeData = questionTypeCounts[k];
+      return typeData && typeData.count > 0;
+    }));
   };
 
   const updateQuestionTypeMarks = (type: string, marks: number) => {
