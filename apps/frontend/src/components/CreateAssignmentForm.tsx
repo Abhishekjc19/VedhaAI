@@ -70,7 +70,6 @@ export function CreateAssignmentForm() {
       const assignment = await assignmentAPI.createAssignment({
         ...data,
         questionTypes: selectedTypes,
-        dueDate: new Date(data.dueDate),
       });
 
       setCurrentAssignment(assignment as Assignment);
