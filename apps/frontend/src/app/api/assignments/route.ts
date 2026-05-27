@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Get user from auth header
     const user = await getUserFromRequest(request);
-    const userId = user?.id || 'anonymous';
+    const userId = user?.id || null;
     console.log('[API] User ID:', userId);
 
     const assignmentId = uuidv4();
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
 
     // Get user from auth header
     const user = await getUserFromRequest(request);
-    const userId = user?.id || 'anonymous';
+    const userId = user?.id || null;
 
     const { data, error } = await supabase
       .from('assignments')
