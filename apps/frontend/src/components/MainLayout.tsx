@@ -3,12 +3,33 @@
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Bell } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
+  const { user } = useAuth();
+
+  // Generate initials from full name
+  const getInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'U';
+  };
+
+  // Get display name
+  const getDisplayName = () => {
+    return user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar />
@@ -31,9 +52,9 @@ export function MainLayout({ children }: MainLayoutProps) {
               {/* User Profile */}
               <button className="flex items-center gap-2 rounded-lg hover:bg-gray-100 p-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-white text-sm font-semibold">
-                  JD
+                  {getInitials()}
                 </div>
-                <span className="text-sm font-medium text-gray-700">John Doe</span>
+                <span className="text-sm font-medium text-gray-700">{getDisplayName()}</span>
               </button>
             </div>
           </div>
@@ -47,4 +68,3 @@ export function MainLayout({ children }: MainLayoutProps) {
     </div>
   );
 }
-
