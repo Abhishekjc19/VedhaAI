@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           school_name: schoolName,
         },
-        emailRedirectTo: `${window.location.origin}/login`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 

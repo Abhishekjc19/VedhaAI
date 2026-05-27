@@ -1,25 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, Loader, CheckCircle } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const { signIn } = useAuth();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   useEffect(() => {
-    setMounted(true);
-    
     // Check for verification success
     if (searchParams.get('verified') === 'true') {
       setSuccessMessage('Email verified successfully! You can now log in.');
@@ -45,10 +41,6 @@ export default function LoginPage() {
 
     setLoading(false);
   };
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div className="flex min-h-screen">
@@ -178,5 +170,20 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader className="h-6 w-6 animate-spin text-blue-600" />
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
