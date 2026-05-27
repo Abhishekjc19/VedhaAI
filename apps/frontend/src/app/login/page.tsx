@@ -17,12 +17,12 @@ function LoginForm() {
 
   useEffect(() => {
     // Check for verification success
-    if (searchParams.get('verified') === 'true') {
+    if (searchParams?.get('verified') === 'true') {
       setSuccessMessage('Email verified successfully! You can now log in.');
     }
     
     // Check for verification error
-    if (searchParams.get('error') === 'verification_failed') {
+    if (searchParams?.get('error') === 'verification_failed') {
       setError('Email verification failed. Please try again.');
     }
   }, [searchParams]);
