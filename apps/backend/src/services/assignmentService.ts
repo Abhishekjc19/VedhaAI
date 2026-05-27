@@ -1,95 +1,106 @@
 import { v4 as uuidv4 } from 'uuid';
-import { getDatabase, getRedisClient } from '../config/database';
+import { getSupabase, getRedisClient } from '../config/database';
 import { Assignment, QuestionPaper } from '../models/types';
 import { logger } from '../utils/logger';
 
 export class AssignmentService {
-  async createAssignment(data: Partial<Assignment>): Promise<Assignment> {
-    const db = getDatabase();
-    const assignment: Assignment = {
+  async createAssignment(data: Partial<Assignment>, userId: string): Promise<Assignment> {
+    const supabase = getSupabase();
+    const assignment = {
       id: uuidv4(),
+      user_id: userId,
       title: data.title || 'Untitled Assignment',
       topic: data.topic || '',
       description: data.description,
-      dueDate: data.dueDate || new Date(),
-      questionTypes: data.questionTypes || [],
-      numberOfQuestions: data.numberOfQuestions || 10,
-      totalMarks: data.totalMarks || 50,
-      additionalInstructions: data.additionalInstructions || '',
-      filePath: data.filePath,
-      fileContent: data.fileContent,
+      due_date: data.dueDate,
+      question_types: data.questionTypes || [],
+      number_of_questions: data.numberOfQuestions || 10,
+      total_marks: data.totalMarks || 50,
+      additional_instructions: data.additionalInstructions || '',
       status: 'draft',
-      questionsGenerated: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      questions_generated: false,
     };
 
-    const result = await db.collection('assignments').insertOne(assignment);
-    return { ...assignment, _id: result.insertedId };
+    const { data: result, error } = await supabase
+      .from('assignments')
+      .insert(assignment)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result as Assignment;
   }
 
   async getAssignment(id: string): Promise<Assignment | null> {
-    const db = getDatabase();
-    return db.collection('assignments').findOne({ id });
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('assignments')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) return null;
+    return data as Assignment;
   }
 
   async updateAssignmentStatus(id: string, status: string): Promise<void> {
-    const db = getDatabase();
-    await db.collection('assignments').updateOne(
-      { id },
-      { 
-        $set: { 
-          status,
-          updatedAt: new Date(),
-        },
-      }
-    );
+    const supabase = getSupabase();
+    await supabase
+      .from('assignments')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id);
   }
 
   async saveQuestionPaper(paper: QuestionPaper): Promise<void> {
-    const db = getDatabase();
+    const supabase = getSupabase();
     
     // Save question paper
-    await db.collection('question_papers').insertOne({
+    await supabase.from('question_papers').insert({
       ...paper,
-      createdAt: new Date(),
+      created_at: new Date().toISOString(),
     });
 
-    // Update assignment with question paper ID and mark as completed
-    await db.collection('assignments').updateOne(
-      { id: paper.assignmentId },
-      {
-        $set: {
-          questionPaperId: paper.id,
-          questionsGenerated: true,
-          status: 'completed',
-          updatedAt: new Date(),
-        },
-      }
-    );
+    // Update assignment
+    await supabase
+      .from('assignments')
+      .update({
+        question_paper_id: paper.id,
+        questions_generated: true,
+        status: 'completed',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', paper.assignmentId);
   }
 
   async getQuestionPaper(id: string): Promise<QuestionPaper | null> {
-    const db = getDatabase();
-    return db.collection('question_papers').findOne({ id });
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('question_papers')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) return null;
+    return data as QuestionPaper;
   }
 
-  async listAssignments(limit: number = 10, skip: number = 0): Promise<Assignment[]> {
-    const db = getDatabase();
-    return db
-      .collection('assignments')
-      .find({})
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .skip(skip)
-      .toArray();
+  async listAssignments(userId: string, limit: number = 10, skip: number = 0): Promise<Assignment[]> {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('assignments')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(skip, skip + limit - 1);
+
+    if (error) return [];
+    return data as Assignment[];
   }
 
   async deleteAssignment(id: string): Promise<void> {
-    const db = getDatabase();
-    await db.collection('assignments').deleteOne({ id });
-    // Also delete associated question papers
-    await db.collection('question_papers').deleteMany({ assignmentId: id });
+    const supabase = getSupabase();
+    await supabase.from('assignments').delete().eq('id', id);
+    await supabase.from('question_papers').delete().eq('assignment_id', id);
   }
 }
 

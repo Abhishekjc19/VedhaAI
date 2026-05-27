@@ -21,7 +21,7 @@ export function validateRequest(schema: Joi.ObjectSchema) {
     });
 
     if (error) {
-      const messages = error.details.map((d) => d.message).join(', ');
+      const messages = error.details.map((d: Joi.ValidationErrorItem) => d.message).join(', ');
       throw new ValidationError(400, messages);
     }
 
