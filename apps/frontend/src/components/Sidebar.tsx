@@ -94,11 +94,13 @@ export function Sidebar({ schoolName = 'Delhi Public School', schoolCity = 'Boka
       <div className="border-t border-gray-200 px-4 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-semibold text-sm">
-            {user?.email?.charAt(0).toUpperCase() || 'U'}
+            {user?.user_metadata?.full_name 
+              ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+              : user?.email?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="truncate text-sm font-semibold text-gray-900">
-              {user?.user_metadata?.school_name || schoolName}
+              {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
             </p>
             <p className="truncate text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
           </div>

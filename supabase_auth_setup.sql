@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS public.users (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
   school_name TEXT,
   avatar_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -31,10 +32,11 @@ CREATE POLICY "Users can insert own data" ON public.users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, email, school_name)
+  INSERT INTO public.users (id, email, full_name, school_name)
   VALUES (
     NEW.id,
     NEW.email,
+    NEW.raw_user_meta_data->>'full_name',
     NEW.raw_user_meta_data->>'school_name'
   );
   RETURN NEW;

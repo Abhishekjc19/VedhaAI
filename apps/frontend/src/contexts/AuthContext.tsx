@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, schoolName?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, schoolName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, schoolName?: string) => {
+  const signUp = async (email: string, password: string, fullName: string, schoolName?: string) => {
     if (!supabase) {
       const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -77,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
       options: {
         data: {
+          full_name: fullName,
           school_name: schoolName,
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await supabase.from('users').insert({
         id: data.user.id,
         email: data.user.email,
+        full_name: fullName,
         school_name: schoolName,
       });
     }
