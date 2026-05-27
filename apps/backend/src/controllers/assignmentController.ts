@@ -3,6 +3,18 @@ import { assignmentService, cacheService } from '../services/assignmentService';
 import { addGenerationJob } from '../services/queueService';
 import { logger } from '../utils/logger';
 
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email?: string;
+      };
+    }
+  }
+}
+
 export async function createAssignment(req: Request, res: Response) {
   try {
     const {
@@ -16,6 +28,9 @@ export async function createAssignment(req: Request, res: Response) {
       additionalInstructions,
     } = req.body;
 
+    // Get user ID from auth (you'll need to implement auth middleware)
+    const userId = req.user?.id || 'anonymous'; // TODO: Add proper auth
+
     const assignment = await assignmentService.createAssignment({
       title,
       topic,
@@ -25,7 +40,7 @@ export async function createAssignment(req: Request, res: Response) {
       numberOfQuestions,
       totalMarks,
       additionalInstructions,
-    });
+    }, userId);
 
     res.status(201).json(assignment);
   } catch (error) {
@@ -48,11 +63,11 @@ export async function generateQuestions(req: Request, res: Response) {
     const job = await addGenerationJob({
       assignmentId,
       topic: assignment.topic,
-      numberOfQuestions: assignment.numberOfQuestions,
-      questionTypes: assignment.questionTypes,
-      totalMarks: assignment.totalMarks,
+      numberOfQuestions: assignment.number_of_questions || assignment.numberOfQuestions || 10,
+      questionTypes: assignment.question_types || assignment.questionTypes || [],
+      totalMarks: assignment.total_marks || assignment.totalMarks || 50,
       difficulty: difficulty || 'mixed',
-      additionalInstructions: assignment.additionalInstructions,
+      additionalInstructions: assignment.additional_instructions || assignment.additionalInstructions || '',
       fileContent,
     });
 
@@ -114,7 +129,10 @@ export async function listAssignments(req: Request, res: Response) {
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    const assignments = await assignmentService.listAssignments(limit, skip);
+    // Get user ID from auth (you'll need to implement auth middleware)
+    const userId = req.user?.id || 'anonymous'; // TODO: Add proper auth
+
+    const assignments = await assignmentService.listAssignments(userId, limit, skip);
     res.json({
       data: assignments,
       page,
