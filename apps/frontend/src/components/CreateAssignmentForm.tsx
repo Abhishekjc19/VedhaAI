@@ -111,31 +111,46 @@ export function CreateAssignmentForm() {
   };
 
   const updateQuestionTypeCount = (type: string, delta: number) => {
-    const current = questionTypeCounts[type] || { count: 0, marks: 0 };
-    const newCount = Math.max(0, current.count + delta);
-    setQuestionTypeCounts(prev => ({
-      ...prev,
-      [type]: { count: newCount, marks: current.marks }
-    }));
-    setValue('questionTypes', Object.keys(questionTypeCounts).filter(k => {
-      const typeData = questionTypeCounts[k];
-      return typeData && typeData.count > 0;
-    }));
+    setQuestionTypeCounts(prev => {
+      const current = prev[type] || { count: 0, marks: 0 };
+      const newCount = Math.max(0, current.count + delta);
+      const newCounts = {
+        ...prev,
+        [type]: { count: newCount, marks: current.marks }
+      };
+      
+      // Update form value with new question types
+      const selectedTypes = Object.keys(newCounts).filter(k => {
+        const typeData = newCounts[k];
+        return typeData && typeData.count > 0;
+      });
+      setValue('questionTypes', selectedTypes);
+      
+      return newCounts;
+    });
   };
 
   const updateQuestionTypeMarks = (type: string, marks: number) => {
-    const current = questionTypeCounts[type] || { count: 0, marks: 0 };
-    setQuestionTypeCounts(prev => ({
-      ...prev,
-      [type]: { count: current.count, marks: Math.max(0, marks) }
-    }));
+    setQuestionTypeCounts(prev => {
+      const current = prev[type] || { count: 0, marks: 0 };
+      return {
+        ...prev,
+        [type]: { count: current.count, marks: Math.max(0, marks) }
+      };
+    });
   };
 
   const totalQuestionsCount = Object.values(questionTypeCounts).reduce((sum, q) => sum + (q?.count || 0), 0);
   const totalMarksCount = Object.values(questionTypeCounts).reduce((sum, q) => sum + (q?.marks || 0), 0);
 
+  // Debug logging
+  console.log('Question Type Counts:', questionTypeCounts);
+  console.log('Total Questions:', totalQuestionsCount);
+  console.log('Total Marks:', totalMarksCount);
+
   // Sync calculated totals with form values
   React.useEffect(() => {
+    console.log('Syncing totals - Questions:', totalQuestionsCount, 'Marks:', totalMarksCount);
     setValue('numberOfQuestions', totalQuestionsCount);
     setValue('totalMarks', totalMarksCount);
   }, [totalQuestionsCount, totalMarksCount, setValue]);
