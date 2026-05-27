@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Mail, Lock, Loader } from 'lucide-react';
+import { Mail, Lock, Loader, CheckCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,15 +12,29 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const { signIn } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Check for verification success
+    if (searchParams.get('verified') === 'true') {
+      setSuccessMessage('Email verified successfully! You can now log in.');
+    }
+    
+    // Check for verification error
+    if (searchParams.get('error') === 'verification_failed') {
+      setError('Email verification failed. Please try again.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
 
     const { error } = await signIn(email, password);
@@ -76,6 +91,13 @@ export default function LoginPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back</h2>
               <p className="text-gray-600">Sign in to your account to continue</p>
             </div>
+
+            {successMessage && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                <p className="text-sm text-green-600">{successMessage}</p>
+              </div>
+            )}
 
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
