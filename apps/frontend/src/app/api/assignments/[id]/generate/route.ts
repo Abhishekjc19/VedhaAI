@@ -5,11 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
-
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -18,6 +13,12 @@ export async function POST(
     const { id: assignmentId } = params;
     const body = await request.json();
     const { difficulty = 'mixed', fileContent } = body;
+
+    // Initialize Supabase client inside the handler
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
 
     // Get assignment details
     const { data: assignment, error: assignmentError } = await supabase
@@ -129,7 +130,11 @@ Ensure the total marks add up to ${assignment.total_marks} and distribute questi
 
     // Update assignment status to failed
     const { id: assignmentId } = params;
-    await supabase
+    const supabaseForError = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+    await supabaseForError
       .from('assignments')
       .update({ status: 'failed' })
       .eq('id', assignmentId);

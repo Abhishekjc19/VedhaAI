@@ -4,16 +4,16 @@ import { createClient } from '@supabase/supabase-js';
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
-
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+
     const { id } = params;
 
     const { data, error } = await supabase
@@ -44,6 +44,11 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+
     const { id } = params;
 
     // Delete question papers first

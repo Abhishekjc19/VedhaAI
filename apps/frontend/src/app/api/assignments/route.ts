@@ -5,11 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 // Mark this route as dynamic
 export const dynamic = 'force-dynamic';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
-
 // Helper function to get user from request
 async function getUserFromRequest(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -31,6 +26,11 @@ async function getUserFromRequest(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+
     const body = await request.json();
     const {
       title,
@@ -82,6 +82,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!
+    );
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
