@@ -92,6 +92,13 @@ export function CreateAssignmentForm() {
   const onSubmit = async (data: AssignmentFormData) => {
     setIsSubmitting(true);
     try {
+      console.log('Submitting assignment:', {
+        ...data,
+        questionTypes: selectedTypes,
+        numberOfQuestions: totalQuestionsCount,
+        totalMarks: totalMarksCount,
+      });
+
       const assignment = await assignmentAPI.createAssignment({
         ...data,
         questionTypes: selectedTypes,
@@ -99,12 +106,17 @@ export function CreateAssignmentForm() {
         totalMarks: totalMarksCount,
       });
 
+      console.log('Assignment created:', assignment);
       setCurrentAssignment(assignment as Assignment);
       setIsGenerating(false);
       router.push(`/assignment/${assignment.id}/generate`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating assignment:', error);
-      alert('Failed to create assignment');
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      const errorMessage = error.response?.data?.error || error.response?.data?.details || error.message || 'Failed to create assignment';
+      alert(`Failed to create assignment: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }

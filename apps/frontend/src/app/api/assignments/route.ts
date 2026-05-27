@@ -26,12 +26,18 @@ async function getUserFromRequest(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[API] Creating assignment...');
+    
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_KEY!
     );
 
+    console.log('[API] Supabase client created');
+
     const body = await request.json();
+    console.log('[API] Request body:', JSON.stringify(body, null, 2));
+    
     const {
       title,
       topic,
@@ -46,35 +52,56 @@ export async function POST(request: NextRequest) {
     // Get user from auth header
     const user = await getUserFromRequest(request);
     const userId = user?.id || 'anonymous';
+    console.log('[API] User ID:', userId);
 
     const assignmentId = uuidv4();
+    console.log('[API] Generated assignment ID:', assignmentId);
+
+    const insertData = {
+      id: assignmentId,
+      user_id: userId,
+      title,
+      topic,
+      description,
+      due_date: dueDate,
+      question_types: questionTypes,
+      number_of_questions: numberOfQuestions,
+      total_marks: totalMarks,
+      additional_instructions: additionalInstructions,
+      status: 'draft',
+      questions_generated: false,
+    };
+    
+    console.log('[API] Inserting data:', JSON.stringify(insertData, null, 2));
 
     const { data, error } = await supabase
       .from('assignments')
-      .insert({
-        id: assignmentId,
-        user_id: userId,
-        title,
-        topic,
-        description,
-        due_date: dueDate,
-        question_types: questionTypes,
-        number_of_questions: numberOfQuestions,
-        total_marks: totalMarks,
-        additional_instructions: additionalInstructions,
-        status: 'draft',
-        questions_generated: false,
-      })
+      .insert(insertData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[API] Supabase error:', error);
+      throw error;
+    }
 
+    console.log('[API] Assignment created successfully:', data);
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error('Error creating assignment:', error);
+    console.error('[API] Error creating assignment:', error);
+    console.error('[API] Error details:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
     return NextResponse.json(
-      { error: 'Failed to create assignment', details: error.message },
+      { 
+        error: 'Failed to create assignment', 
+        details: error.message,
+        code: error.code,
+        hint: error.hint 
+      },
       { status: 500 }
     );
   }
