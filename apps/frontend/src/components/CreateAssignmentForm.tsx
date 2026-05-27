@@ -95,6 +95,8 @@ export function CreateAssignmentForm() {
       const assignment = await assignmentAPI.createAssignment({
         ...data,
         questionTypes: selectedTypes,
+        numberOfQuestions: totalQuestionsCount,
+        totalMarks: totalMarksCount,
       });
 
       setCurrentAssignment(assignment as Assignment);
@@ -131,6 +133,12 @@ export function CreateAssignmentForm() {
 
   const totalQuestionsCount = Object.values(questionTypeCounts).reduce((sum, q) => sum + (q?.count || 0), 0);
   const totalMarksCount = Object.values(questionTypeCounts).reduce((sum, q) => sum + (q?.marks || 0), 0);
+
+  // Sync calculated totals with form values
+  React.useEffect(() => {
+    setValue('numberOfQuestions', totalQuestionsCount);
+    setValue('totalMarks', totalMarksCount);
+  }, [totalQuestionsCount, totalMarksCount, setValue]);
 
   return (
     <div className="rounded-xl bg-white shadow-sm border border-gray-200">
