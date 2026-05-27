@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// Mark this route as dynamic
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!
 );
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(
   request: NextRequest,
@@ -37,6 +38,10 @@ export async function POST(
       .from('assignments')
       .update({ status: 'processing' })
       .eq('id', assignmentId);
+
+    // Dynamically import Google Generative AI
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
     // Generate questions using AI
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
